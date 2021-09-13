@@ -1,5 +1,5 @@
 # What Is This Project
-* Objective: Perfromance comparison of ZNCC block matching implemented by C (no special technique) and ISPC.
+* Objective: Perfromance comparison of ZNCC block matching implemented by C (without special technique) and ISPC.
 * Target platform : Intel Clear Linux, ISPC 1.16.1, gcc 11.2.1
 
 # Directory Structure
