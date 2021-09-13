@@ -1,0 +1,46 @@
+#ifndef COSTMAP_ISPH_
+#define COSTMAP_ISPH_
+#include "Basic2DTypes.isph"
+// 4-D table indexed by packed pixel point X, packed pixel point Y, packed search point X, packed search point Y.
+// packed pixel point X has step 1. packed pixel point Y has step 'stride'.
+// packed search point X has step 'area of pixel map'.
+// packed search point Y has step 'area of pixel map' x 'search width'.
+struct CostMap 
+{
+    Size2i pixelSize;
+    Size2i searchSize;
+    uniform float* costs;
+};
+
+export uniform ZnccError CostMap_New(uniform CostMap& costmap, uniform const Size2i& pixelSize, uniform const Size2i& searchSize);
+
+export void CostMap_Delete(uniform CostMap& costmap);
+
+struct CostSearchTable
+{
+    Rect searchRect;
+    uniform float* costs;
+};
+
+export uniform ZnccError CostSearchTable_New(uniform CostSearchTable& costSearchTable, uniform const Rect& searchRect);
+
+export void CostSearchTable_Delete(uniform CostSearchTable& costSearchTable);
+
+/**
+@brief Gather cost function value from costmap for maximum search. Search is done at a pixel of the base image over
+the shifted image.
+@param costmap [in]
+@param costSearchTable [in,out] cost search table over disparities at a base pixel point. It must be initialized with 
+the size of search rect in advance. Otherwise assert() fails.
+@param pixelPoint [in] packed pixel coordinate which excludes edge margin region, where (0, 0) corresponds to Image.roi top-left.
+*/
+export void CostMap_Gather(
+    uniform const CostMap& costmap, uniform CostSearchTable& costSearchTable, uniform const Point2i& pixelPoint);
+
+/**
+@brief Gather cost function values from costmap for maximum search. Search is done at a pixel of the shifted image
+over the base image.
+*/
+export void CostMap_ReverseGather(
+    uniform const CostMap& costmap, uniform CostSearchTable& costSearchTable, uniform const Point2i& pixelPoint);
+#endif /* COSTMAP_ISPH_ */

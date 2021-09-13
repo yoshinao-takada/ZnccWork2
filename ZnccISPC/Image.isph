@@ -1,0 +1,69 @@
+#ifndef IMAGE_ISPH_
+#define IMAGE_ISPH_
+#include "Basic2DTypes.isph"
+
+struct Image 
+{
+    Size2i size; // array size of elements
+    Rect roi; // region of interest
+    float* elements;
+};
+
+#define IMAGE_INIT { {0, 0}, {0, 0, 0, 0}, NULL }
+
+inline uniform float* uniform Image_Begin(uniform Image& image)
+{
+    return image.elements + image.roi[0] + image.roi[1] * image.size[0];
+}
+
+inline uniform const float* uniform Image_BeginC(uniform const Image& image) 
+{
+    return image.elements + image.roi[0] + image.roi[1] * image.size[0];
+}
+
+#pragma region Prototypes_Non_Inline_Functions
+export uniform ZnccError Image_New(uniform Image& image, uniform const Size2i& size, uniform const Rect& roi);
+
+export void Image_Delete(uniform Image& image);
+
+export uniform ZnccError Image_SetPackedImage(
+    uniform Image& image, uniform const uint8* uniform packedImage,
+    uniform const Size2i& packedSize, uniform const Rect& margin
+);
+
+export uniform ZnccError Image_SetPackedImageF(
+    uniform Image& image, uniform const float* uniform packedImage,
+    uniform const Size2i& packedSize, uniform const Rect& margin
+);
+
+export uniform ZnccError Image_GetPackedImage(uniform uint8* uniform packedImage, uniform const uniform Image& image);
+
+export uniform ZnccError Image_GetPackedImageF(uniform float* uniform packedImage, uniform const uniform Image& image);
+
+export void Image_Integrate(uniform Image& image);
+
+export void Image_GetAttributes(uniform const Image& image, uniform Size2i& size, uniform Rect& rect);
+
+export uniform ZnccError Image_Clone(uniform Image& destination, uniform const Image& source);
+
+uniform ZnccError Image_SetSquare(uniform Image& destination, uniform const Image& source);
+
+uniform ZnccError Image_SetSquaredDeviation(uniform Image& destination, uniform const Image& source, uniform const Image& mean);
+
+// add souorce to destination including margin area
+export void Image_Add(uniform Image& destination, uniform const Image& source);
+export void Image_Multiply(uniform Image& destination, uniform const Image& source);
+export void Image_Subtract(uniform Image& destination, uniform const Image& source);
+
+
+/*!
+\brief calculate mean
+\param mean [out] 
+\param src [in] source image
+\param sumRect [in] sum area of mean calculation
+*/
+void Image_Mean(uniform Image& mean, uniform const Image& src, uniform const Rect& sumRect);
+
+export void Image_Sum(uniform const Image& src, uniform const Rect& sumRect, uniform Image& sums);
+#pragma endregion
+#endif /*  IMAGE_ISPH_ */

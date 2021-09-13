@@ -1,0 +1,191 @@
+#ifndef BASIC2DTYPES_ISPH_
+#define BASIC2DTYPES_ISPH_
+/*!
+\brief basic data types and related inline functions.
+*/
+
+enum ZnccError {
+    errSuccess,
+    errInvalid,
+    errNoMem,
+    errRange,
+    errSizeMismatch
+};
+
+typedef int<2> Size2i;
+typedef int<2> Point2i;
+typedef int<2> Range1D; // [0]:begin at, [1]:span
+typedef int<4> Rect;
+
+// Area of Size2i and Rect
+inline int Area(const Size2i& size)
+{
+    return size[0] * size[1];
+}
+
+inline uniform int Area(uniform const Size2i& size)
+{
+    return size[0] * size[1];
+}
+
+inline int Area(const Rect& rect)
+{
+    return rect[2] * rect[3];
+}
+
+inline uniform int Area(uniform const Rect& rect)
+{
+    return rect[2] * rect[3];
+}
+
+// Fill with 0
+inline void Zero(Size2i& size)
+{
+    size[0] = size[1] = 0;
+}
+
+inline void Zero(uniform Size2i& size)
+{
+    size[0] = size[1] = 0;
+}
+
+inline void Zero(Rect& rect)
+{
+    rect[0] = rect[1] = rect[2] = rect[3] = 0;
+}
+
+inline void Zero(uniform Rect& rect)
+{
+    rect[0] = rect[1] = rect[2] = rect[3] = 0;
+}
+// Get a top-left point and bottom-right point of Rect
+inline Point2i TopLeft(const Rect& rect)
+{
+    Point2i tl = { rect[0], rect[1] };
+    return tl;
+}
+inline uniform Point2i TopLeft(uniform const Rect& rect)
+{
+    uniform Point2i tl = { rect[0], rect[1] };
+    return tl;
+}
+
+inline Point2i BottomRight(const Rect& rect)
+{
+    Point2i br = { rect[0] + rect[2], rect[1] + rect[3] };
+    return br;
+}
+
+inline uniform Point2i BottomRight(uniform const Rect& rect)
+{
+    uniform Point2i br = { rect[0] + rect[2], rect[1] + rect[3] };
+    return br;
+}
+// Comarison
+#pragma region Size2i
+inline bool AreEqual(const Size2i& s0, const Size2i& s1)
+{
+    return (s0[0] == s1[0]) && (s0[1] == s1[1]);
+}
+
+inline uniform bool AreEqual(uniform const Size2i& s0, uniform const Size2i& s1)
+{
+    return (s0[0] == s1[0]) && (s0[1] == s1[1]);
+}
+
+inline bool AreNotEqual(const Size2i& s0, const Size2i& s1)
+{
+    return (s0[0] != s1[0]) || (s0[1] != s1[1]);
+}
+
+inline uniform bool AreNotEqual(uniform const Size2i& s0, uniform const Size2i& s1)
+{
+    return (s0[0] != s1[0]) || (s0[1] != s1[1]);
+}
+#pragma endregion
+#pragma region Rect
+inline bool AreEqual(const Rect& s0, const Rect& s1)
+{
+    return (s0[0] == s1[0]) && (s0[1] == s1[1]) && (s0[2] == s1[2]) && (s0[3] == s1[3]);
+}
+
+inline uniform bool AreEqual(uniform const Rect& s0, uniform const Rect& s1)
+{
+    return (s0[0] == s1[0]) && (s0[1] == s1[1]) && (s0[2] == s1[2]) && (s0[3] == s1[3]);
+}
+
+inline bool AreNotEqual(const Rect& s0, const Rect& s1)
+{
+    return (s0[0] != s1[0]) || (s0[1] != s1[1]) || (s0[2] != s1[2]) || (s0[3] != s1[3]);
+}
+
+inline uniform bool AreNotEqual(uniform const Rect& s0, uniform const Rect& s1)
+{
+    return (s0[0] != s1[0]) || (s0[1] != s1[1]) || (s0[2] != s1[2]) || (s0[3] != s1[3]);
+}
+#pragma endregion
+
+// Point is/is not in a Rect.
+inline bool IsIn(const Point2i& point, const Rect& rect)
+{
+    return (rect[0] <= point[0]) &&
+        (rect[1] <= point[1]) &&
+        (point[0] < (rect[0] + rect[2])) &&
+        (point[1] < (rect[1] + rect[3]));
+}
+inline bool IsIn(const Point2i& point, uniform const Rect& rect)
+{
+    return (rect[0] <= point[0]) &&
+        (rect[1] <= point[1]) &&
+        (point[0] < (rect[0] + rect[2])) &&
+        (point[1] < (rect[1] + rect[3]));
+}
+inline uniform bool IsIn(uniform const Point2i& point, uniform const Rect& rect)
+{
+    return (rect[0] <= point[0]) &&
+        (rect[1] <= point[1]) &&
+        (point[0] < (rect[0] + rect[2])) &&
+        (point[1] < (rect[1] + rect[3]));
+}
+inline bool IsNotIn(const Point2i& point, const Rect& rect)
+{
+    return (point[0] < rect[0]) ||
+        (point[1] < rect[1]) ||
+        ((rect[0] + rect[2]) <= point[0]) ||
+        ((rect[1] + rect[3]) <= point[1]);
+}
+inline bool IsNotIn(const Point2i& point, uniform const Rect& rect)
+{
+    return (point[0] < rect[0]) ||
+        (point[1] < rect[1]) ||
+        ((rect[0] + rect[2]) <= point[0]) ||
+        ((rect[1] + rect[3]) <= point[1]);
+}
+inline uniform bool IsNotIn(uniform const Point2i& point, uniform const Rect& rect)
+{
+    return (point[0] < rect[0]) ||
+        (point[1] < rect[1]) ||
+        ((rect[0] + rect[2]) <= point[0]) ||
+        ((rect[1] + rect[3]) <= point[1]);
+}
+inline uniform Rect CreateRoi(uniform const Size2i& wholeSize, uniform const Rect& marginRect)
+{
+    uniform Rect roi = { -marginRect[0], -marginRect[1], wholeSize[0] - marginRect[2], wholeSize[1] - marginRect[3] };
+    return roi;
+}
+// Clamp float to uint8
+inline uint8 ClampFtoU8(float f)
+{
+    return (uint8)min(255, max(0, (int32)f));
+}
+
+inline uniform uint8 ClampFtoU8(uniform float f)
+{
+    return (uniform uint8)min(255, max(0, (uniform int)f));
+}
+
+inline void assertNot(bool condition)
+{
+    assert(!condition);
+}
+#endif /* BASIC2DTYPES_ISPH_ */

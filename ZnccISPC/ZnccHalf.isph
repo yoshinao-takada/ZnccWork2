@@ -1,0 +1,38 @@
+#ifndef ZNCCHALF_ISPH_
+#define ZNCCHALF_ISPH_
+#include "Image.isph"
+#include "SpecialImages.isph"
+
+struct ZnccHalf
+{
+    Image lumdev; // luminance deviations from their mean
+    Image mean; // luminance mean
+    Image rcpsd; // reciprocals of standard deviations
+    Image random; // fully filled with random dots including edge margin region
+};
+
+struct ZnccMatchingSizes
+{
+    Size2i packedSize; // packed image size
+    Size2i gridSize; // on-image-plane grid size (in the case of sparse grid)
+    Rect searchRect;
+    Rect sumRect;
+    Rect marginRect;
+    Size2i imageBufferSize; // derived from packedSize and marginRect
+    Rect imageRoi; // derived from packedSize and marginRect
+};
+
+export uniform ZnccError ZnccHalf_SetImage(
+    uniform ZnccHalf& znccHalf, uniform const Image& image,
+    uniform const ZnccMatchingSizes& sizes, uniform const SpecialImages& si
+);
+
+export void ZnccHalf_Delete(uniform ZnccHalf& znccHalf);
+
+/*!
+\brief fill as much as possibly consistent from partially filled information
+\param sizes [in,out] in: partially filled, out: filled as much as possiblely consistent
+*/
+export void ZnccMatchingSizes_Update(uniform ZnccMatchingSizes& sizes);
+
+#endif /*  ZNCCHALF_ISPH_ */

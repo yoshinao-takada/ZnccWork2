@@ -1,0 +1,17 @@
+#ifndef SPECIALIMAGES_ISPH_
+#define SPECIALIMAGES_ISPH_
+#include "Image.isph"
+
+struct SpecialImages
+{
+    Image ZeroBgOneFg;
+    Image OneBgZeroFg;
+    Image RandBgZeroFg;
+    Image FltMaxBgZeroFg;
+    Image AllRand;
+};
+
+export void SpecialImages_Create(uniform SpecialImages& si, uniform const Size2i& size, uniform const Rect& roi);
+
+export void SpecialImages_Delete(uniform SpecialImages& si);
+#endif /* SPECIALIMAGES_ISPH_ */

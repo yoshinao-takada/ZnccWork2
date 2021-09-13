@@ -1,0 +1,44 @@
+#ifndef SUMKERNEL_ISPH_
+#define SUMKERNEL_ISPH_
+#include "Image.isph"
+
+struct SumKernel
+{
+    const uniform float* uniform base;
+    const int osRight;
+    const int osBottom;
+    const int osBottomRight;
+};
+
+inline uniform float SumKernel_SATSum(const uniform SumKernel& sk, uniform int index)
+{
+    return sk.base[index] - sk.base[index + sk.osRight] - sk.base[index + sk.osBottom] + sk.base[index + sk.osBottomRight];
+}
+
+inline float SumKernel_SATSum(const uniform SumKernel& sk, int index)
+{
+    return sk.base[index] - sk.base[index + sk.osRight] - sk.base[index + sk.osBottom] + sk.base[index + sk.osBottomRight];
+}
+
+inline uniform SumKernel Image_GetSumKernel(uniform const Image& image, const uniform Rect& sumRect)
+{
+    uniform SumKernel sk = {
+        Image_BeginC(image) + sumRect[0] - 1 + (sumRect[1] - 1) * image.size[0],
+        sumRect[2],
+        sumRect[3] * image.size[0],
+        sumRect[2] + sumRect[3] * image.size[0]
+    };
+    return sk;
+}
+
+
+inline uniform Rect SumKernel_MarginRect(uniform const Rect& sumRect)
+{
+    uniform Rect marginRect =
+    {
+        sumRect[0] - 1, sumRect[1] - 1, sumRect[2] + 1, sumRect[3] + 1
+    };
+    return marginRect;
+}
+
+#endif /*  SUMKERNEL_ISPH_ */

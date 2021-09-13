@@ -1,0 +1,8 @@
+#include "Basic2DTypes.isph"
+#include "ZnccHalf.isph"
+#include "CostMap.isph"
+
+export uniform ZnccError CostMapGen_Fill(
+    uniform const ZnccHalf& base, uniform const ZnccHalf& shifted,
+    uniform const ZnccMatchingSizes& sizes, uniform CostMap& cm
+);
