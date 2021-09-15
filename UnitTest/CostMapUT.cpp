@@ -130,6 +130,15 @@ static int CreateCostMap()
     return err;
 }
 
+static int MatchForward()
+{
+    int err = EXIT_SUCCESS;
+    do {
+        assert(false);
+    } while (0);
+    return err;
+}
+
 int CostMapUT()
 {
     int err = EXIT_SUCCESS;
@@ -142,6 +151,11 @@ int CostMapUT()
         if (EXIT_SUCCESS != (err = CreateCostMap()))
         {
             fprintf(stderr, "%s,%d,fail in CreateCostMap()\n", __FUNCTION__, __LINE__);
+            break;
+        }
+        if (EXIT_SUCCESS != (err = MatchForward()))
+        {
+            fprintf(stderr, "%s,%d,fail in MatchForward()\n", __FUNCTION__, __LINE__);
             break;
         }
     } while (0);

@@ -90,7 +90,9 @@ extern "C" {
     extern void CostMap_Delete(struct CostMap &costmap);
     extern void CostMap_Gather(const struct CostMap &costmap, struct CostSearchTable &costSearchTable, const int32_t2   &pixelPoint);
     extern enum ZnccError CostMap_New(struct CostMap &costmap, const int32_t2   &pixelSize, const int32_t2   &searchSize);
+    extern void CostMap_ReverseGather(const struct CostMap &costmap, struct CostSearchTable &costSearchTable, const int32_t2   &pixelPoint);
     extern void CostSearchTable_Delete(struct CostSearchTable &costSearchTable);
+    extern void CostSearchTable_FindMaximum(const struct CostSearchTable &costSearchTable, const float minimumCost, int32_t2   &foundPoint);
     extern enum ZnccError CostSearchTable_New(struct CostSearchTable &costSearchTable, const int32_t4   &searchRect);
 #if defined(__cplusplus) && (! defined(__ISPC_NO_EXTERN_C) || !__ISPC_NO_EXTERN_C )
 } /* end extern C */

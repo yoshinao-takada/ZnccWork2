@@ -4,6 +4,7 @@ int BasicsUT();
 int UtilImageSourceUT();
 int MeanScatteringUT();
 int CostMapUT();
+int BasicsCUT(); // Tests foor Basic2DTypesC.h
 
 int main()
 {
@@ -22,6 +23,10 @@ int main()
             fprintf(stderr, "%s,%d,fail,err=%d\n", __FUNCTION__, __LINE__, err);
         }
         if (EXIT_SUCCESS != (err = CostMapUT()))
+        {
+            fprintf(stderr, "%s,%d,fail,err=%d\n", __FUNCTION__, __LINE__, err);
+        }
+        if (EXIT_SUCCESS != (err = BasicsCUT()))
         {
             fprintf(stderr, "%s,%d,fail,err=%d\n", __FUNCTION__, __LINE__, err);
         }

@@ -71,3 +71,34 @@ export void CostMap_Gather(
         costSearchTable.costs[i] = costmap.costs[offset + step * i];
     }
 }
+
+export void CostSearchTable_FindMaximum(
+    uniform const CostSearchTable& costSearchTable, uniform const float minimumCost, uniform Point2i& foundPoint
+) {
+    uniform Point2i foundMax = { __INT32_MIN__, __INT32_MIN__ };
+    uniform float foundMaxCost = minimumCost;
+    for (uniform int iV = 0; iV != costSearchTable.searchRect[3]; ++iV)
+    {
+        for (uniform int iH = 0; iH != costSearchTable.searchRect[2]; ++iH)
+        {
+            uniform const int linearIndex = iH + iV * costSearchTable.searchRect[2];
+            uniform const float currentCostValue = costSearchTable.costs[linearIndex];
+            if (costSearchTable.costs[linearIndex] > foundMaxCost)
+            {
+                foundMaxCost = currentCostValue;
+                foundMax[0] = iH;
+                foundMax[1] = iV;
+            }
+        }
+    }
+    if (foundMax[0] != __INT32_MIN__)
+    {
+        foundPoint[0] = foundMax[0] + costSearchTable.searchRect[0];
+        foundPoint[1] = foundMax[1] + costSearchTable.searchRect[1];
+    }
+    else
+    {
+        foundPoint[0] = foundMax[0];
+        foundPoint[1] = foundMax[1];
+    }
+}

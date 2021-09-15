@@ -188,4 +188,8 @@ inline void assertNot(bool condition)
 {
     assert(!condition);
 }
+// __INT32_MAX__ is a predefined constant but __INT32_MIN__ is not.
+#ifndef __INT32_MIN__
+#define __INT32_MIN__    0x80000000
+#endif
 #endif /* BASIC2DTYPES_ISPH_ */

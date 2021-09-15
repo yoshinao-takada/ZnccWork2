@@ -43,4 +43,13 @@ over the base image.
 */
 export void CostMap_ReverseGather(
     uniform const CostMap& costmap, uniform CostSearchTable& costSearchTable, uniform const Point2i& pixelPoint);
+
+/**
+@brief return the 2D index of the point with maximum cost value in the table.
+@param costSearchTable [in]
+@param minimumCost [in] points with cost values less than minimumCost are ignored.
+@return The 2D index of the found point.
+*/
+export void CostSearchTable_FindMaximum(
+    uniform const CostSearchTable& costSearchTable, uniform const float minimumCost, uniform Point2i& foundPoint);
 #endif /* COSTMAP_ISPH_ */
