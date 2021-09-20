@@ -10,14 +10,11 @@ typedef struct {
 } SumKernelC_t, *pSumKernelC_t;
 typedef const SumKernelC_t *pcSumKernelC_t;
 
-inline float SumKernelC_SATSum(pcSumKernelC_t sk, int index)
-{
-    return 
-        sk->base[index] 
-        - sk->base[index + sk->osRight] 
-        - sk->base[index + sk->osBottom]
-        + sk->base[index + sk->osBottomRight];
-}
+#define SumKernelC_SATSum(sk, index) ( \
+        (sk)->base[index]  \
+        - (sk)->base[index + (sk)->osRight] \
+        - (sk)->base[index + (sk)->osBottom] \
+        + (sk)->base[index + (sk)->osBottomRight])
 
 #define MK_SUMKERNEL(image, sumRect) { \
     ImageC_BeginC(image) + sumRect[0] - 1 + (sumRect[1] - 1) * (image)->size[0], \

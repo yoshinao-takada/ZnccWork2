@@ -12,6 +12,7 @@ typedef struct {
     ImageC_t AllRand; 
 } SpecialImagesC_t, *pSpecialImagesC_t;
 typedef const SpecialImagesC_t *pcSpecialImagesC_t;
+#define NULLSPECIALIMAGE_C { NULLIMAGE_C, NULLIMAGE_C, NULLIMAGE_C, NULLIMAGE_C, NULLIMAGE_C }
 
 int SpecialImagesC_Create(pSpecialImagesC_t si, const Size2iC_t size, const RectC_t roi);
 

@@ -24,7 +24,7 @@ $(DEBUG_TARGET_DIR)/libZnccC.a	:
 
 .PHONY	:	clean_debug
 clean_debug	:
-	cd PerfTest && $(MAKE) $@
+#	cd PerfTest && $(MAKE) $@
 	cd UnitTest && $(MAKE) $@
 	cd Util && $(MAKE) $@
 	cd ZnccISPC && $(MAKE) $@
@@ -51,7 +51,7 @@ $(RELEASE_TARGET_DIR)/libZnccC.a	:
 
 .PHONY	:	clean_release
 clean_release	:
-	cd PerfTest && $(MAKE) $@
+#	cd PerfTest && $(MAKE) $@
 	cd UnitTest && $(MAKE) $@
 	cd Util && $(MAKE) $@
 	cd ZnccISPC && $(MAKE) $@

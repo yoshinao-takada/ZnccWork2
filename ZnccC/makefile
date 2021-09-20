@@ -1,9 +1,9 @@
 CC = clang
 INCFLAGS = -I..
 DEBUG_TARGET_DIR = ../debug
-DEBUG_OBJECT_DIR = ../$(DEBUG_TARGET_DIR)/o
+DEBUG_OBJECT_DIR = $(DEBUG_TARGET_DIR)/o
 RELEASE_TARGET_DIR = ../release
-RELEASE_OBJECT_DIR = ../$(RELEASE_TARGET_DIR)/o
+RELEASE_OBJECT_DIR = $(RELEASE_TARGET_DIR)/o
 DEBUG_CC_FLAGS = -fPIE -c -g -D_DEBUG $(INCFLAGS) -std=c++17 -std=c11
 RELEASE_CC_FLAGS = -fPIE -c -O3 -DNDEBUG $(INCFLAGS) -std=c++17 -std=c11
 DEBUG_TARGET = $(DEBUG_TARGET_DIR)/libZnccC.a
@@ -49,9 +49,9 @@ clean_debug	:
 	rm -f $(DEBUG_TARGET)
 	rm -f $(DEBUG_OBJECTS)
 
-# --------------------- debug -----------------------
-.PHONY	:	debug
-debug	:	$(RELEASE_TARGET)
+# --------------------- release -----------------------
+.PHONY	:	release
+release	:	$(RELEASE_TARGET)
 $(RELEASE_TARGET)	:	$(RELEASE_OBJECTS)
 	ar r $@ $^
 	ranlib $@

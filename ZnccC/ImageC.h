@@ -11,7 +11,7 @@ typedef struct {
     float* elements;
 } ImageC_t, *pImageC_t;
 typedef const ImageC_t *pcImageC_t;
-#define NULLIMAGE { {0,0}, {0,0,0,0}, NULL }
+#define NULLIMAGE_C { {0,0}, {0,0,0,0}, NULL }
 
 int ImageC_New(pImageC_t image, const Size2iC_t size, const RectC_t roi);
 

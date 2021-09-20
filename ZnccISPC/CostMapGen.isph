@@ -6,3 +6,9 @@ export uniform ZnccError CostMapGen_Fill(
     uniform const ZnccHalf& base, uniform const ZnccHalf& shifted,
     uniform const ZnccMatchingSizes& sizes, uniform CostMap& cm
 );
+
+
+export uniform ZnccError CostMapGen_FillByTasks(
+    uniform const ZnccHalf& base, uniform const ZnccHalf& shifted,
+    uniform const ZnccMatchingSizes& sizes, uniform CostMap& cm
+);

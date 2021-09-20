@@ -67,14 +67,16 @@ int ImageC_SetPackedImageF(pImageC_t image, const float* packedImage, const Size
 {
     int err = EXIT_SUCCESS;
     do {
+        if (EXIT_SUCCESS != (err = ImageC_New(image,size, roi)))
+        {
+            break;
+        }
         float* dstF = ImageC_Begin(image);
         const float* srcF = packedImage;
+        size_t copySize = roi[2] * sizeof(float);
         for (int iRow = 0; iRow != roi[3]; iRow++)
         {
-            for (int iCol = 0; iCol != roi[2]; iCol++)
-            {
-                dstF[iCol] = srcF[iCol];
-            }
+            memcpy(dstF, srcF, copySize);
             dstF += size[0];
             srcF += roi[2];
         }
@@ -100,7 +102,7 @@ void ImageC_Integrate(pImageC_t image)
     float* ptr = image->elements;
     int offsetRight = 1;
     int offsetLower = image->size[0];
-    int offsetLowwerRight = offsetLower + offsetRight;
+    int offsetLowerRight = offsetLower + offsetRight;
     int stride = image->size[0];
     int endRow = image->size[1] - 1;
     int endCol = image->size[0] - 1;
@@ -108,7 +110,7 @@ void ImageC_Integrate(pImageC_t image)
     {
         for (int iCol = 0; iCol != endCol; iCol++)
         {
-            ptr[offsetLowwerRight] += ((ptr[offsetRight] - ptr[0]) + ptr[offsetLower]);
+            ptr[iCol + offsetLowerRight] += ((ptr[iCol + offsetRight] - ptr[iCol]) + ptr[iCol + offsetLower]);
         }
         ptr += stride;
     }
@@ -151,8 +153,8 @@ int ImageC_Mean(pImageC_t mean, pcImageC_t source, const RectC_t sumRect)
 {
     const int stride = source->size[0];
     int err = EXIT_SUCCESS;
-    ImageC_t imageForMean = NULLIMAGE;
-
+    ImageC_t imageForMean = NULLIMAGE_C;
+    const float rcpSumArea = 1.0f / (float)AREA_RECT(sumRect);
     do {
         const RectC_t marginRect = { sumRect[0] - 1, sumRect[1] - 1, sumRect[2] + 1, sumRect[3] + 1 };
         const RectC_t tempRoi = {
@@ -174,11 +176,13 @@ int ImageC_Mean(pImageC_t mean, pcImageC_t source, const RectC_t sumRect)
         {
             for (int iCol = 0; iCol != tempRoi[2]; iCol++)
             {
-                meanPtr[iCol] = SumKernelC_SATSum(&sk, iCol);
+                meanPtr[iCol] = rcpSumArea * SumKernelC_SATSum(&sk, iCol);
             }
             sk.base += stride;
             meanPtr += stride;
         }
+        COPY4(mean->roi, source->roi);
     }  while (0);
+    ImageC_Delete(&imageForMean);
     return err;
 }

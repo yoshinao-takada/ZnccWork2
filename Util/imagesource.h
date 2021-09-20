@@ -1,6 +1,7 @@
 #ifndef IMAGESOURCE_H_
 #define IMAGESOURCE_H_
 #include <ZnccISPC/Image.hpp>
+#include <ZnccC/ImageC.h>
 #include <vector>
 /**
  * @brief Create random mosaic pattern with noise.
@@ -27,6 +28,7 @@ void ImageSource_Create(ispc::Image& image, const ispc::int32_t2& patternScale);
 void ImageSource_Shift(ispc::Image& imageShifted, const ispc::Image& imageSource, const std::vector<ispc::int32_t2>& shifts);
 
 void ImageSource_MonoralSample(ispc::Image& image);
+void ImageSource_MonotalSample(pImageC_t image);
 
 /**
  * @brief Creates a default sample stereo images. Their sizes are (640,480). Their rois are (0,0,640,480).
@@ -36,4 +38,5 @@ void ImageSource_MonoralSample(ispc::Image& image);
  * @param imageSource [out]
  */
 void ImageSource_StereoSamples(ispc::Image& imageShifted, ispc::Image& imageSource);
+void ImageSource_StereoSamples(pImageC_t imageShifted, pImageC_t imageSource);
 #endif /* IMAGESOURCE_H_ */

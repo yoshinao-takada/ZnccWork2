@@ -10,6 +10,7 @@ typedef struct {
     float* costs;
 } CostMapC_t, *pCostMapC_t;
 typedef const CostMapC_t *pcCostMapC_t;
+#define NULLCOSTMAP_C   { {0,0,0,0}, {0,0,0,0}, NULL }
 
 int CostMapC_New(pCostMapC_t costmap, const RectC_t roi, const RectC_t searchRect);
 
@@ -24,6 +25,7 @@ typedef struct {
     float* costs;
 } CostSearchTableC_t, *pCostSearchTableC_t;
 typedef const CostSearchTableC_t *pcCostSearchTableC_t;
+#define NULLCOSTSEARCHTABLE_C   { {0,0,0,0}, NULL }
 
 int CostSearchTableC_New(pCostSearchTableC_t costSearchTable, pcCostMapC_t costmap);
 
@@ -31,6 +33,8 @@ void CostSearchTableC_Delete(pCostSearchTableC_t costSearchTable);
 
 void CostSearchTableC_Gather(
     pCostSearchTableC_t costSearchTable, pcCostMapC_t costmap, const Point2iC_t packedPixelPoint);
+
+void CostSearchTableC_FindMaximumPoint(pcCostSearchTableC_t costSearchTable, Point2iC_t pointOfMaxmum);
 #ifdef __cplusplus
 }
 #endif

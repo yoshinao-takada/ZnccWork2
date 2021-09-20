@@ -1,5 +1,6 @@
 #include "ZnccC/CostMapC.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <errno.h>
 
 int CostMapC_New(pCostMapC_t costmap, const RectC_t roi, const RectC_t searchRect)
@@ -88,5 +89,34 @@ void CostSearchTableC_Gather(
     {
         costsDst[i] = *costsSrc;
         costsSrc += pixelPlaneArea;
+    }
+}
+
+void CostSearchTableC_FindMaximumPoint(pcCostSearchTableC_t costSearchTable, Point2iC_t pointOfMaxmum)
+{
+    float currentCost = 0.0f;
+    Point2iC_t currentPoint = { -1, -1 };
+    for (int iRow = 0; iRow != costSearchTable->searchRect[3]; iRow++)
+    {
+        for (int iCol = 0; iCol != costSearchTable->searchRect[2]; iCol++)
+        {
+            const int linearIndex = iCol + iRow * costSearchTable->searchRect[2];
+            const float cost = costSearchTable->costs[linearIndex];
+            if (cost > currentCost)
+            {
+                currentCost = cost;
+                currentPoint[0] = iCol;
+                currentPoint[1] = iRow;
+            }
+        }
+    }
+    if (currentPoint[0] == -1)
+    {
+        pointOfMaxmum[0] = pointOfMaxmum[1] = INT32_MIN;
+    }
+    else
+    {
+        pointOfMaxmum[0] = currentPoint[0] + costSearchTable->searchRect[0];
+        pointOfMaxmum[1] = currentPoint[1] + costSearchTable->searchRect[1];
     }
 }

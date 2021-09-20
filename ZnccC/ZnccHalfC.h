@@ -13,6 +13,7 @@ typedef struct {
     ImageC_t random;
 } ZnccHalfC_t, *pZnccHalfC_t;
 typedef const ZnccHalfC_t *pcZnccHalfC_t;
+#define NULLZNCCHALF_C { NULLIMAGE_C, NULLIMAGE_C, NULLIMAGE_C, NULLIMAGE_C }
 
 typedef struct {
     Size2iC_t packedSize;
@@ -20,7 +21,7 @@ typedef struct {
     RectC_t searchRect;
     RectC_t sumRect;
     RectC_t marginRect;
-    Size2iC_t imaageBufferSize;
+    Size2iC_t imageBufferSize;
     RectC_t imageRoi;
 } ZnccMatchingSizesC_t, *pZnccMatchingSizesC_t;
 typedef const ZnccMatchingSizesC_t *pcZnccMatchingSizesC_t;

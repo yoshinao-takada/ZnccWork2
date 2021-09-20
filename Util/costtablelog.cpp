@@ -48,3 +48,16 @@ void CostTableLog_SaveCSV(
         fclose(pf);
     }
 }
+
+void CostTableLog_SaveCSVC(
+    pcCostSearchTableC_t costSearchTable,
+    const char* dir,
+    const char* subdirBase,
+    const Point2iC_t pixelPoint
+) {
+    ispc::CostSearchTable cst_ = { {{0,0,0,0}}, nullptr };
+    COPY4(cst_.searchRect.v, costSearchTable->searchRect);
+    cst_.costs = costSearchTable->costs;
+    const ispc::int32_t2 pixelPoint_ = {{ pixelPoint[0], pixelPoint[1] }};
+    CostTableLog_SaveCSV(cst_, dir, subdirBase, pixelPoint_);
+}
