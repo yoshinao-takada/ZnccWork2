@@ -131,10 +131,13 @@ struct SpecialImages {
 extern "C" {
 #endif // __cplusplus
     extern enum ZnccError CostMapGen_Fill(const struct ZnccHalf &base, const struct ZnccHalf &shifted, const struct ZnccMatchingSizes &sizes, struct CostMap &cm);
+    extern enum ZnccError CostMapGen_FillByTasks(const struct ZnccHalf &base, const struct ZnccHalf &shifted, const struct ZnccMatchingSizes &sizes, struct CostMap &cm);
     extern void CostMap_Delete(struct CostMap &costmap);
     extern void CostMap_Gather(const struct CostMap &costmap, struct CostSearchTable &costSearchTable, const int32_t2   &pixelPoint);
     extern enum ZnccError CostMap_New(struct CostMap &costmap, const int32_t2   &pixelSize, const int32_t2   &searchSize);
+    extern void CostMap_ReverseGather(const struct CostMap &costmap, struct CostSearchTable &costSearchTable, const int32_t2   &pixelPoint);
     extern void CostSearchTable_Delete(struct CostSearchTable &costSearchTable);
+    extern void CostSearchTable_FindMaximum(const struct CostSearchTable &costSearchTable, const float minimumCost, int32_t2   &foundPoint);
     extern enum ZnccError CostSearchTable_New(struct CostSearchTable &costSearchTable, const int32_t4   &searchRect);
     extern void Image_Add(struct Image &destination, const struct Image &source);
     extern enum ZnccError Image_Clone(struct Image &destination, const struct Image &source);

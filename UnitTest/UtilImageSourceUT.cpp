@@ -2,9 +2,9 @@
 #include <Util/imagelog.h>
 #include <cstdlib>
 #include <cstdio>
-#define ZERO_SIZE   {{0,0}}
-#define ZERO_RECT   {{0,0,0,0}}
-#define NULL_IMAGE { ZERO_SIZE, ZERO_RECT, nullptr }
+#define ZERO_SIZE_DEF   {{0,0}}
+#define ZERO_RECT_DEF   {{0,0,0,0}}
+#define NULL_IMAGE { ZERO_SIZE_DEF, ZERO_RECT_DEF, nullptr }
 #define WORKDIR     "../WorkData/"
 #define IMAGESOURCE_DIR "ImageSource/"
 

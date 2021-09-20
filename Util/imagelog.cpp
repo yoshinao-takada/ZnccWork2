@@ -109,8 +109,8 @@ void ImageLog_SaveColorMap(const char* dir, const char* subdir, const ispc::Imag
         fprintf(pf, "roi=(%d,%d,%d,%d)\n", image->roi.v[0], image->roi.v[1], image->roi.v[2], image->roi.v[3]);
         fclose(pf);
     }
-    { // save grayscale map
-        std::filesystem::path filepath = dirpath / "grayscale.jpg";
+    { // save color map
+        std::filesystem::path filepath = dirpath / "color.jpg";
         cv::Mat1b u8image(image->size.v[1], image->size.v[0]);
         u8image.forEach(CvPixelConvRanged(pixconv, image, range0, range1));
         cv::Mat3b colorimage;
@@ -216,4 +216,54 @@ void ImageLog_SaveCostSearchTableCSV(const char* dir, const char* filename, cons
         fprintf(pf, "\n");
     }
     fclose(pf);
+}
+
+
+void ImageLog_SaveImageC(const char* dir, const char* subdir, pcImageC_t image, const FPIXTOU8 pixconv)
+{
+    const ispc::Image image_ = {
+        {{image->size[0], image->size[1]}},
+        {{image->roi[0], image->roi[1], image->roi[2], image->roi[3] }},
+        image->elements
+    };
+    ImageLog_SaveImage(dir, subdir, &image_, pixconv);
+}
+
+void ImageLog_SaveColorMapC(const char* dir, const char* subdir, pcImageC_t image, const FPIXTOU8RANGED pixconv, float range0, float range1)
+{
+    const ispc::Image image_ = {
+        {{image->size[0], image->size[1]}},
+        {{image->roi[0], image->roi[1], image->roi[2], image->roi[3] }},
+        image->elements
+    };
+    ImageLog_SaveColorMap(dir, subdir, &image_, pixconv, range0, range1);
+}
+
+void ImageLog_SaveCSVC(const char* dir, const char* filename, pcImageC_t image)
+{
+    const ispc::Image image_ = {
+        {{image->size[0], image->size[1]}},
+        {{image->roi[0], image->roi[1], image->roi[2], image->roi[3] }},
+        image->elements
+    };
+    ImageLog_SaveCSV(dir, filename, &image_);
+}
+
+void ImageLog_SaveMatrixImageCSVC(const char* dir, const char* filename, pcImageC_t image)
+{
+    const ispc::Image image_ = {
+        {{image->size[0], image->size[1]}},
+        {{image->roi[0], image->roi[1], image->roi[2], image->roi[3] }},
+        image->elements
+    };
+    ImageLog_SaveMatrixImageCSV(dir, filename, &image_);
+}
+
+void ImageLog_SaveCostSearchTableCSVC(const char* dir, const char* filename, pcCostSearchTableC_t cst)
+{
+    const ispc::CostSearchTable cst_ = {
+        {{ cst->searchRect[0], cst->searchRect[1], cst->searchRect[2], cst->searchRect[3] }},
+        cst->costs
+    };
+    ImageLog_SaveCostSearchTableCSV(dir, filename, &cst_);
 }

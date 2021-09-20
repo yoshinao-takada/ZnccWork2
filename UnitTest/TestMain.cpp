@@ -4,6 +4,9 @@ int BasicsUT();
 int UtilImageSourceUT();
 int MeanScatteringUT();
 int CostMapUT();
+int BasicsCUT(); // Tests foor Basic2DTypesC.h
+int MeanScatteringCUT(); // tests for ImageC.h and ZnccHalfC.h
+int CostMapCUT(); // test for CostMapC.h and CostMapGenC.h
 
 int main()
 {
@@ -17,11 +20,23 @@ int main()
         {
             fprintf(stderr, "%s,%d,fail,err=%d\n", __FUNCTION__, __LINE__, err);
         }
-        if (EXIT_SUCCESS != (err = MeanScatteringUT()))
+        // if (EXIT_SUCCESS != (err = MeanScatteringUT()))
+        // {
+        //     fprintf(stderr, "%s,%d,fail,err=%d\n", __FUNCTION__, __LINE__, err);
+        // }
+        // if (EXIT_SUCCESS != (err = CostMapUT()))
+        // {
+        //     fprintf(stderr, "%s,%d,fail,err=%d\n", __FUNCTION__, __LINE__, err);
+        // }
+        if (EXIT_SUCCESS != (err = BasicsCUT()))
         {
             fprintf(stderr, "%s,%d,fail,err=%d\n", __FUNCTION__, __LINE__, err);
         }
-        if (EXIT_SUCCESS != (err = CostMapUT()))
+        if (EXIT_SUCCESS != (err = MeanScatteringCUT()))
+        {
+            fprintf(stderr, "%s,%d,fail,err=%d\n", __FUNCTION__, __LINE__, err);
+        }
+        if (EXIT_SUCCESS != (err = CostMapCUT()))
         {
             fprintf(stderr, "%s,%d,fail,err=%d\n", __FUNCTION__, __LINE__, err);
         }

@@ -87,3 +87,42 @@ export uniform ZnccError CostMapGen_Fill(
     } while (0);
     return err;
 }
+
+
+task void CostMapGen_FillTask(
+    uniform const ZnccHalf& base, uniform const ZnccHalf& shifted,
+    uniform const ZnccMatchingSizes& sizes, uniform CostMap& cm, uniform ZnccError& taskReturn
+) {
+    uniform const Size2i searchSize = { sizes.searchRect[2], sizes.searchRect[3] }; // { search width, search height }
+    uniform const Size2i packedPixelSize = { base.mean.roi[2], base.mean.roi[3] };
+    uniform const int pixelPlaneArea = Area(packedPixelSize);
+    uniform ZnccError err = errSuccess;
+    do {
+        if (errSuccess != (err = CostMap_New(cm, packedPixelSize, searchSize)))
+        {
+            break;
+        }
+
+        for (uniform int iSearchV = taskIndex; iSearchV < searchSize[1]; iSearchV += taskCount)
+        {
+            for (uniform int iSearchH = 0; iSearchH != searchSize[0]; iSearchH++)
+            {
+                uniform const int searchPointLinearIndex = iSearchH + iSearchV * searchSize[0];
+                uniform float* uniform costPlane = cm.costs + pixelPlaneArea * searchPointLinearIndex;
+                uniform const Point2i searchPoint = { sizes.searchRect[0] + iSearchH, sizes.searchRect[1] + iSearchV }; // point relative to search rect reference point
+                err |= CostMapGen_FillPixelPlane(base, shifted, sizes, searchPoint, costPlane);
+            }
+        }
+    } while (0);
+    taskReturn = err;
+}
+
+
+export uniform ZnccError CostMapGen_FillByTasks(
+    uniform const ZnccHalf& base, uniform const ZnccHalf& shifted,
+    uniform const ZnccMatchingSizes& sizes, uniform CostMap& cm
+) {
+    uniform ZnccError err = errSuccess;
+    launch[4] CostMapGen_FillTask(base, shifted, sizes, cm, err);
+    return err;
+}

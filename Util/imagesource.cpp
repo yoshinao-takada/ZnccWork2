@@ -105,7 +105,34 @@ void ImageSource_StereoSamples(ispc::Image& imageShifted, ispc::Image& imageSour
     ispc::Image_New(imageShifted, imageSource.size, imageSource.roi);
     const std::vector<ispc::int32_t2> shifts =
     {
-        {{-10, -1}}, {{-5, 1}}, {{-3, 0}}, {{0,0}}
+        {{-10, -1}}, {{-5, 1}}, {{-3, 2}}, {{4,0}}
     };
     ImageSource_Shift(imageShifted, imageSource, shifts);
+}
+
+void ImageSource_MonotalSample(pImageC_t image)
+{
+    ispc::Image image_ = {{{0,0}}, {{0,0,0,0}}, nullptr};
+    ImageSource_MonoralSample(image_);
+    int err = ImageC_New(image, image_.size.v, image_.roi.v);
+    assert(EXIT_SUCCESS == err);
+    size_t copySize = sizeof(float) * AREA_SIZE(image->size);
+    memcpy(image->elements, image_.elements, copySize);
+    ispc::Image_Delete(image_);
+}
+
+void ImageSource_StereoSamples(pImageC_t imageShifted, pImageC_t imageSource)
+{
+    ispc::Image imageShifted_ = {{{0,0}}, {{0,0,0,0}}, nullptr},
+        imageSource_ = {{{0,0}}, {{0,0,0,0}}, nullptr};
+    ImageSource_StereoSamples(imageShifted_, imageSource_);
+    int err = ImageC_New(imageShifted, imageShifted_.size.v, imageShifted_.roi.v);
+    assert(EXIT_SUCCESS == err);
+    err = ImageC_New(imageSource, imageShifted_.size.v, imageShifted_.roi.v);
+    assert(EXIT_SUCCESS == err);
+    size_t copySize = sizeof(float) * AREA_SIZE(imageShifted->size);
+    memcpy(imageShifted->elements, imageShifted_.elements, copySize);
+    memcpy(imageSource->elements, imageSource_.elements, copySize);
+    ispc::Image_Delete(imageShifted_);
+    ispc::Image_Delete(imageSource_);
 }

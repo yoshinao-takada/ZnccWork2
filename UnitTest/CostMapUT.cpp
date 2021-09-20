@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cassert>
 #include <memory.h>
+#define ENABLE_TASK_PARALLEL
 #define WORKDIR         "../WorkData/"
 #define NULLIMAGE       { {{0,0}}, {{0,0,0,0}}, nullptr }
 #define NULLZNCCHALF    { NULLIMAGE, NULLIMAGE, NULLIMAGE }
@@ -18,6 +19,7 @@ typedef enum {
 } BaseShifted_t;
 
 static ispc::Image imageBase = NULLIMAGE, imageShifted = NULLIMAGE;
+static ispc::Image dispMapH = NULLIMAGE, dispMapV = NULLIMAGE;
 static ispc::ZnccHalf base = NULLZNCCHALF, shifted = NULLZNCCHALF;
 static ispc::SpecialImages si0 = NULLSPECIALIMAGES, si1 = NULLSPECIALIMAGES;
 static ispc::ZnccMatchingSizes sizes =
@@ -36,6 +38,11 @@ static uint8_t OnlyTypeConversion(float pixelValue)
     return (uint8_t)std::max<int32_t>(0, std::min<int32_t>(255, (int32_t)pixelValue));
 }
 
+static uint8_t RangeAndTypeConversion(float pixelValue, float range0, float range1)
+{
+    int16_t normalized = (int16_t)(256.0f * (pixelValue - range0) / (range1 - range0));
+    return (uint8_t)std::min<int16_t>(255, std::max<int16_t>(0, normalized));
+}
 static void SaveZnccHalf(const char* workdir, BaseShifted_t bs, const ispc::ZnccHalf& znccHalf)
 {
     char subdir[64];
@@ -81,6 +88,8 @@ static void Cleanup()
 {
     ispc::Image_Delete(imageBase);
     ispc::Image_Delete(imageShifted);
+    ispc::Image_Delete(dispMapH);
+    ispc::Image_Delete(dispMapV);
     ispc::ZnccHalf_Delete(base);
     ispc::ZnccHalf_Delete(shifted);
     ispc::SpecialImages_Delete(si0);
@@ -109,7 +118,11 @@ static int CreateCostMap()
     ispc::ZnccError zerr = ispc::ZnccError::errSuccess;
     ispc::CostSearchTable cst = NULLCOSTSEARCHTABLE;
     do {
+#ifdef ENABLE_TASK_PARALLEL
+        zerr = CostMapGen_FillByTasks(base, shifted, sizes, costmap);
+#else
         zerr = CostMapGen_Fill(base, shifted, sizes, costmap);
+#endif
         if (ispc::ZnccError::errSuccess != zerr)
         {
             fprintf(stderr, "%s,%d,fail in CostMapGen_Fill()", __FUNCTION__, __LINE__);
@@ -130,6 +143,41 @@ static int CreateCostMap()
     return err;
 }
 
+static int MatchForward()
+{
+    ispc::CostSearchTable searchTable = NULLCOSTSEARCHTABLE;
+    int err = EXIT_SUCCESS;
+    ispc::ZnccError zerr = ispc::ZnccError::errSuccess;
+    do {
+        if ((ispc::ZnccError::errSuccess != (zerr = ispc::Image_New(dispMapH, imageBase.size, imageBase.roi))) ||
+            (ispc::ZnccError::errSuccess != (zerr = ispc::Image_New(dispMapV, imageBase.size, imageBase.roi))) ||
+            (ispc::ZnccError::errSuccess != (zerr = ispc::CostSearchTable_New(searchTable, sizes.searchRect))))
+        {
+            fprintf(stderr, "%s,%d,fail in ispc::Image_New() or ispc::CostSearchTable_New()\n", __FUNCTION__, __LINE__);
+            err = EXIT_FAILURE;
+            break;
+        }
+        for (int iRow = 0; iRow != dispMapH.roi.v[3]; iRow++)
+        {
+            for (int iCol = 0; iCol != dispMapH.roi.v[2]; iCol++)
+            {
+                ispc::int32_t2 packedPixelPoint = { iCol, iRow };
+                ispc::int32_t2 disp = { INT32_MIN, INT32_MIN };
+                ispc::CostMap_Gather(costmap, searchTable, packedPixelPoint);
+                ispc::CostSearchTable_FindMaximum(searchTable, 0.5f, disp);
+                ispc::int32_t2 extendedPixelPoint = { iCol + dispMapH.roi.v[0], iRow + dispMapH.roi.v[1] };
+                const int32_t linearPixelIndex = extendedPixelPoint.v[0] + extendedPixelPoint.v[1] * dispMapH.size.v[0];
+                dispMapH.elements[linearPixelIndex] = (float)disp.v[0];
+                dispMapV.elements[linearPixelIndex] = (float)disp.v[1];
+            }
+        }
+        ImageLog_SaveColorMap(WORKDIR, "DispMapH", &dispMapH, RangeAndTypeConversion, -10.0f, 4.0f);
+        ImageLog_SaveColorMap(WORKDIR, "DispMapV", &dispMapV, RangeAndTypeConversion, -3.0f, 3.0f);
+    } while (0);
+    ispc::CostSearchTable_Delete(searchTable);
+    return err;
+}
+
 int CostMapUT()
 {
     int err = EXIT_SUCCESS;
@@ -142,6 +190,11 @@ int CostMapUT()
         if (EXIT_SUCCESS != (err = CreateCostMap()))
         {
             fprintf(stderr, "%s,%d,fail in CreateCostMap()\n", __FUNCTION__, __LINE__);
+            break;
+        }
+        if (EXIT_SUCCESS != (err = MatchForward()))
+        {
+            fprintf(stderr, "%s,%d,fail in MatchForward()\n", __FUNCTION__, __LINE__);
             break;
         }
     } while (0);
