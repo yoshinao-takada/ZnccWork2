@@ -1,4 +1,6 @@
-# Design of image container considering summed-area table and template matching
+# Design of image container considering [summed-area table](https://en.wikipedia.org/wiki/Summed-area_table) and Quasi-[ZNCC](https://en.wikipedia.org/wiki/Cross-correlation) template matching
+__Note__: Quasi-ZNCC is not an acknowledged word. I have created it in this document.
+
 The image container is implemented in `ZnccC/ImageC.c` for C-language and
 `ZnccISPC/Image.isph` for ISPC language. Implemented algorithms are same for both.
 I explain mainly C version which data structure is a little simpler than ISPC version
@@ -15,7 +17,7 @@ Name | Description | base data type
 `RectC_t` | 2D rectangle, similar to OpenCV `cv::Rect2i` | four element array of `int32_t`
 <br>
 
-Note: `RectC_t`[0], [1]: The origin of the rectangle, `RectC_t`[2], [3]: The width and the height of the rectangle.
+__Note__: `RectC_t`[0], [1]: The origin of the rectangle, `RectC_t`[2], [3]: The width and the height of the rectangle.
 
 Related algorithms are implemented as macros in C version and inline functions in ISPC version.
 <br>
