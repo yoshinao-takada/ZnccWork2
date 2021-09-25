@@ -6,8 +6,8 @@ DEBUG_TARGET_DIR = ../debug
 RELEASE_TARGET_DIR = ../release
 DEBUG_TARGET = $(DEBUG_TARGET_DIR)/PerfTest.exe
 RELEASE_TARGET = $(RELEASE_TARGET_DIR)/PerfTest.exe
-DEBUG_TARGET_LIB = -L$(DEBUG_TARGET_DIR) -lZnccC -lZnccISPC -lUtil
-RELEASE_TARGET_LIB = -L$(RELEASE_TARGET_DIR) -lZnccC -lZnccISPC -lUtil
+DEBUG_TARGET_LIB = -L$(DEBUG_TARGET_DIR) -lUtil -lZnccC -lZnccISPC
+RELEASE_TARGET_LIB = -L$(RELEASE_TARGET_DIR) -lUtil -lZnccC -lZnccISPC
 ISPC_LIB = -L/home/yoshinao/.local/intel/ispc-v1.16.1-linux/lib64 -lispcrt_static -lomp
 OPENCV_LIB = `pkg-config --libs opencv`
 DEBUG_LIB = $(DEBUG_TARGET_LIB) $(OPENCV_LIB) $(ISPC_LIB) -lpthread -lm -lstdc++
@@ -22,7 +22,7 @@ RELEASE_OBJECTS = $(RELEASE_OBJECT_DIR)/PerfTestMain.o $(RELEASE_OBJECT_DIR)/Per
 # -------------------- debug -----------------------------
 .PHONY	:	debug
 debug	:	$(DEBUG_TARGET)
-$(DEBUG_TARGET)	:	$(DEBUG_OBJECTS) $(DEBUG_TARGET_DIR)/libUtil.a $(DEBUG_TARGET_DIR)/libZnccISPC.a
+$(DEBUG_TARGET)	:	$(DEBUG_OBJECTS) $(DEBUG_TARGET_DIR)/libUtil.a $(DEBUG_TARGET_DIR)/libZnccISPC.a $(DEBUG_TARGET_DIR)/libZnccC.a
 	$(CC) -o $@ $(DEBUG_OBJECTS) $(DEBUG_LIB)
 
 $(DEBUG_OBJECT_DIR)/PerfTestMain.o	:	PerfTestMain.cpp
@@ -42,7 +42,7 @@ clean_debug	:
 # -------------------- release -----------------------------
 .PHONY	:	release
 release	:	$(RELEASE_TARGET)
-$(RELEASE_TARGET)	:	$(RELEASE_OBJECTS) $(RELEASE_TARGET_DIR)/libUtil.a $(RELEASE_TARGET_DIR)/libZnccISPC.a
+$(RELEASE_TARGET)	:	$(RELEASE_OBJECTS) $(RELEASE_TARGET_DIR)/libUtil.a $(RELEASE_TARGET_DIR)/libZnccISPC.a $(RELEASE_TARGET_DIR)/libZnccC.a
 	$(CC) -o $@ $(RELEASE_OBJECTS) $(RELEASE_LIB)
 
 $(RELEASE_OBJECT_DIR)/PerfTestMain.o	:	PerfTestMain.cpp

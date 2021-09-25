@@ -59,11 +59,15 @@ foreach (searchRect.row)
 of base luminance deviations and shifted luminance deviations. `searchPoint` moves over a search rect.
 Cost value in a search rect plane in the `CostMap` has its maximum at the best match search point.
 Serch algorithm is applied later. The search algorithm is implemented in `ZnccC/CostMapC.c` and
-`ZnccISPC/CostMap.ispc`.
+`ZnccISPC/CostMap.ispc`.  
+<br>
 Placing `searchRect` loop outer and `pixelMap` loop inner, summed area table can be used to calculate
 local cross correlation at each search point. In this case, applying summed area table helps reduce processing time.
 `CostMap` layout is `searchPoint`-major where `searchPoint`-major means like matrix row-major.
 `CostMap` layout can be eigher of `searchPoint`-major or `pixelPont`-major.
 Adopting `pixelPoint`-major, ISPC compiler emits performance warning and I adopted
 `searchPoint`-major layout both in C and in ISPC.
-
+<br>
+![CostMapImage](Images/CostMap-Structure.jpg)  
+Figre. CostMap structure  
+<br>

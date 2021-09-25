@@ -85,10 +85,10 @@ void CostSearchTableC_Gather(
     const float* costsSrc = costmap->costs + pixelOffset;
     float* costsDst = costSearchTable->costs;
     const int linearSearchTableSize = AREA_RECT(costSearchTable->searchRect);
-    for (int i = 0; i != linearSearchTableSize; i++)
+    int srcOffset = 0;
+    for (int i = 0; i != linearSearchTableSize; i++, srcOffset += pixelPlaneArea)
     {
-        costsDst[i] = *costsSrc;
-        costsSrc += pixelPlaneArea;
+        costsDst[i] = costsSrc[srcOffset];
     }
 }
 
