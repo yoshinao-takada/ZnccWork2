@@ -26,17 +26,21 @@ void Stopwatch_Record(const char* caption, int optNum, struct timespec refTime)
     if (strlen(caption) > MAX_CAPTION_LEN)
     {
         strncpy(record.caption, caption, MAX_CAPTION_LEN);
-        record.optNum = optNum;
-        record.elapsed.tv_sec = time_now.tv_sec - refTime.tv_sec;
-        if (time_now.tv_nsec >= refTime.tv_nsec)
-        {
-            record.elapsed.tv_nsec = time_now.tv_nsec - refTime.tv_nsec;
-        }
-        else
-        {
-            record.elapsed.tv_sec--;
-            record.elapsed.tv_nsec = 1000000000 - refTime.tv_nsec + time_now.tv_nsec;
-        }
+    }
+    else
+    {
+        strcpy(record.caption, caption);
+    }
+    record.optNum = optNum;
+    record.elapsed.tv_sec = time_now.tv_sec - refTime.tv_sec;
+    if (time_now.tv_nsec >= refTime.tv_nsec)
+    {
+        record.elapsed.tv_nsec = time_now.tv_nsec - refTime.tv_nsec;
+    }
+    else
+    {
+        record.elapsed.tv_sec--;
+        record.elapsed.tv_nsec = 1000000000 - refTime.tv_nsec + time_now.tv_nsec;
     }
     if (++StopwatchRecord_filled == MAX_TIMERECORDS)
     {
@@ -55,6 +59,12 @@ void Stopwatch_SaveCSV(const char* dir, const char* filename)
     std::filesystem::path filepath = std::filesystem::path(dir) / std::filesystem::path(filename);
     const char* cfilepath = filepath.c_str();
     FILE* pf = fopen(cfilepath, "w");
+    Stopwatch_Save(pf);
+    if (pf) fclose(pf);
+}
+
+void Stopwatch_Save(FILE* pf)
+{
     fprintf(pf, "caption,opt No.,elapsed time (microseconds)\n");
     for (int i = 0; i < StopwatchRecord_filled; i++)
     {
@@ -62,5 +72,4 @@ void Stopwatch_SaveCSV(const char* dir, const char* filename)
         fprintf(pf, "%s,%d,%d [microseconds]\n",
             timeRecords[i].caption, timeRecords[i].optNum, elapsedMicroseconds);
     }
-    if (pf) fclose(pf);
 }
