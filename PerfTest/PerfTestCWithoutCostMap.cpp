@@ -94,7 +94,11 @@ static void CalcDispMap()
 {
     int err = EXIT_SUCCESS;
     do {
-
+        if (EXIT_SUCCESS != (err = CostMapGen_FindMax(&base, &shifted, &sizes, &dispmapH, &dispmapV)))
+        {
+            fprintf(stderr, "%s,%d,fail in CostMapGen_FindMax()\n", __FUNCTION__, __LINE__);
+            break;
+        }
     } while (0);
     assert(err == EXIT_SUCCESS);
 }
@@ -115,9 +119,9 @@ int PerfTestCWithoutCostMap()
         Stopwatch_Record("ZnccHalf:CwoCM", 0, tRef);
 
         // Step 3: Calculate Costmap
+        // This step was removed.
 
         // Step 4: Calculate disparity map
-
         timespec_get(&tRef, TIME_UTC);
         CalcDispMap();
         Stopwatch_Record("Dispmap:CwoCM", 0, tRef);
