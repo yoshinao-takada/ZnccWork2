@@ -15,9 +15,9 @@ RELEASE_LIB = $(RELEASE_TARGET_LIB) $(OPENCV_LIB) $(ISPC_LIB) -lpthread -lm -lst
 DEBUG_OBJECT_DIR = $(DEBUG_TARGET_DIR)/o
 RELEASE_OBJECT_DIR = $(RELEASE_TARGET_DIR)/o
 DEBUG_OBJECTS = $(DEBUG_OBJECT_DIR)/PerfTestMain.o $(DEBUG_OBJECT_DIR)/PerfTestC.o \
-	$(DEBUG_OBJECT_DIR)/PerfTestISPC.o
+	$(DEBUG_OBJECT_DIR)/PerfTestISPC.o $(DEBUG_OBJECT_DIR)/PerfTestCWithoutCostMap.o
 RELEASE_OBJECTS = $(RELEASE_OBJECT_DIR)/PerfTestMain.o $(RELEASE_OBJECT_DIR)/PerfTestC.o \
-	$(RELEASE_OBJECT_DIR)/PerfTestISPC.o
+	$(RELEASE_OBJECT_DIR)/PerfTestISPC.o $(RELEASE_OBJECT_DIR)/PerfTestCWithoutCostMap.o
 
 # -------------------- debug -----------------------------
 .PHONY	:	debug
@@ -32,6 +32,9 @@ $(DEBUG_OBJECT_DIR)/PerfTestC.o	:	PerfTestC.cpp
 	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
 
 $(DEBUG_OBJECT_DIR)/PerfTestISPC.o	:	PerfTestISPC.cpp
+	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
+
+$(DEBUG_OBJECT_DIR)/PerfTestCWithoutCostMap.o	:	PerfTestCWithoutCostMap.cpp
 	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
 
 .PHONY	:	clean_debug
@@ -52,6 +55,9 @@ $(RELEASE_OBJECT_DIR)/PerfTestC.o	:	PerfTestC.cpp
 	$(CC) $(RELEASE_CC_FLAGS) -o $@ $<
 
 $(RELEASE_OBJECT_DIR)/PerfTestISPC.o	:	PerfTestISPC.cpp
+	$(CC) $(RELEASE_CC_FLAGS) -o $@ $<
+
+$(RELEASE_OBJECT_DIR)/PerfTestCWithoutCostMap.o	:	PerfTestCWithoutCostMap.cpp
 	$(CC) $(RELEASE_CC_FLAGS) -o $@ $<
 
 .PHONY	:	clean_release

@@ -20,8 +20,6 @@ static ImageC_t baseImage = NULLIMAGE_C, shiftedImage = NULLIMAGE_C;
 static ImageC_t dispmapH = NULLIMAGE_C, dispmapV = NULLIMAGE_C;
 static SpecialImagesC_t baseSI = NULLSPECIALIMAGE_C, shiftedSI = NULLSPECIALIMAGE_C;
 static ZnccHalfC_t base = NULLZNCCHALF_C, shifted = NULLZNCCHALF_C;
-static CostMapC_t costmap = NULLCOSTMAP_C;
-static CostSearchTableC_t cst = NULLCOSTSEARCHTABLE_C;
 static ZnccMatchingSizesC_t sizes =
 {
     { 0, 0 }, // packedSize
@@ -43,8 +41,6 @@ static void Cleanup()
     SpecialImagesC_Delete(&shiftedSI);
     ZnccHalfC_Delete(&base);
     ZnccHalfC_Delete(&shifted);
-    CostMapC_Delete(&costmap);
-    CostSearchTableC_Delete(&cst);
 }
 
 static void CreateStereoImages()
@@ -94,35 +90,20 @@ static void CalcZnccHalf()
     assert(EXIT_SUCCESS == err);
 }
 
-static void CalcCostMap()
-{
-    int err = CostMapGenC_FillCostMap(&base, &shifted, &sizes, &costmap);
-    assert(EXIT_SUCCESS == err);
-}
-
 static void CalcDispMap()
 {
-    const int stride = dispmapH.size[0];
-    int err = CostSearchTableC_New(&cst, &costmap);
-    assert(EXIT_SUCCESS == err);
-    float* dispH = ImageC_Begin(&dispmapH);
-    float* dispV = ImageC_Begin(&dispmapV);
-    for (int iRow = 0; iRow != dispmapH.roi[3]; iRow++)
-    {
-        for (int iCol = 0; iCol != dispmapH.roi[2]; iCol++)
+    int err = EXIT_SUCCESS;
+    do {
+        if (EXIT_SUCCESS != (err = CostMapGen_FindMax(&base, &shifted, &sizes, &dispmapH, &dispmapV)))
         {
-            Point2iC_t pointOfMaximum = {0,0};
-            Point2iC_t pixelPoint = { iCol, iRow };
-            CostSearchTableC_Gather(&cst, &costmap, pixelPoint);
-            CostSearchTableC_FindMaximumPoint(&cst, pointOfMaximum);
-            dispH[iCol] = (float)pointOfMaximum[0];
-            dispV[iCol] = (float)pointOfMaximum[1];
+            fprintf(stderr, "%s,%d,fail in CostMapGen_FindMax()\n", __FUNCTION__, __LINE__);
+            break;
         }
-        dispH += stride;
-        dispV += stride;
-    }
+    } while (0);
+    assert(err == EXIT_SUCCESS);
 }
-int PerfTestC()
+
+int PerfTestCWithoutCostMap()
 {
     int err = EXIT_SUCCESS;
     struct timespec tRef = { 0, 0 };
@@ -135,24 +116,18 @@ int PerfTestC()
         // Step 2: Calculate ZnccHalf
         timespec_get(&tRef, TIME_UTC);
         CalcZnccHalf();
-        Stopwatch_Record("ZnccHalf:C", 0, tRef);
+        Stopwatch_Record("ZnccHalf:CwoCM", 0, tRef);
 
         // Step 3: Calculate Costmap
-        timespec_get(&tRef, TIME_UTC);
-        CalcCostMap();
-        Stopwatch_Record("Costmap:C", 0, tRef);
+        // This step was removed.
 
         // Step 4: Calculate disparity map
-        err = ImageC_New(&dispmapH, sizes.imageBufferSize, sizes.imageRoi);
-        assert(EXIT_SUCCESS == err);
-        err = ImageC_New(&dispmapV, sizes.imageBufferSize, sizes.imageRoi);
-        assert(EXIT_SUCCESS == err);
         timespec_get(&tRef, TIME_UTC);
         CalcDispMap();
-        Stopwatch_Record("Dispmap:C", 0, tRef);
+        Stopwatch_Record("Dispmap:CwoCM", 0, tRef);
         Stopwatch_Save(stderr);
-        ImageLog_SaveColorMapC(WORKDIR, "PerfTestDispH_C", &dispmapH, RangeAndTypeConversion, -10.0, 4.0);
-        ImageLog_SaveColorMapC(WORKDIR, "PerfTestDispV_C", &dispmapV, RangeAndTypeConversion, -3.0, 3.0);
+        ImageLog_SaveColorMapC(WORKDIR, "PerfTestDispH_C_WOCM", &dispmapH, RangeAndTypeConversion, -10.0, 4.0);
+        ImageLog_SaveColorMapC(WORKDIR, "PerfTestDispV_C_WOCM", &dispmapV, RangeAndTypeConversion, -3.0, 3.0);
     } while (0);
     Cleanup();
     return err;
