@@ -186,3 +186,13 @@ int ImageC_Mean(pImageC_t mean, pcImageC_t source, const RectC_t sumRect)
     ImageC_Delete(&imageForMean);
     return err;
 }
+
+void ImageC_Negate(pImageC_t img)
+{
+    int area = AREA_SIZE(img->size);
+    if (area == 0) return;
+    for (int i = 0; i != area; i++)
+    {
+        img->elements[i] = -(img->elements[i]);
+    }
+}

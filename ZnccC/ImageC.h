@@ -119,6 +119,12 @@ int ImageC_Mean(pImageC_t mean, pcImageC_t source, const RectC_t sumRect);
  */
 #define ImageC_BeginC(image) ((const float*)((image)->elements + (image)->roi[0] + (image)->roi[1] * (image)->size[0]))
 
+/**
+ * @brief negate all elements
+ * 
+ * @param img 
+ */
+void ImageC_Negate(pImageC_t img);
 #ifdef __cplusplus
 }
 #endif

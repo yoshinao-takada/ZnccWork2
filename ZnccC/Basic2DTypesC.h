@@ -15,6 +15,7 @@ extern "C" {
 typedef int32_t Size2iC_t[2];
 typedef int32_t Point2iC_t[2];
 typedef int32_t Range1D_[2];
+typedef int32_t Rational[2]; // numerator[0], denominator[1]
 typedef int32_t RectC_t[4];
 #define COPY2(dst, src) { dst[0] = src[0]; dst[1] = src[1]; }
 #define COPY4(dst, src) { dst[0] = src[0]; dst[1] = src[1]; dst[2] = src[2]; dst[3] = src[3]; }
@@ -51,6 +52,8 @@ typedef int32_t RectC_t[4];
     -marginRect[0], -marginRect[1], wholeSize[0] - marginRect[2], wholeSize[1] - marginRect[3] }
 
 #define F2U8(f) (uint8_t)min(255, max(0, (intn32_t)f))
+
+#define FLIP_RECT(r) { 1 - (r[0]+r[2]), 1 - (r[1]+r[3]), r[2], r[3] }
 
 #ifdef __cplusplus
 }
