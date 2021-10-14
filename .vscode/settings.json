@@ -59,6 +59,9 @@
         "thread": "cpp",
         "typeinfo": "cpp",
         "stdint.h": "c",
-        "assert.h": "c"
+        "assert.h": "c",
+        "core.hpp": "c",
+        "imgproc.hpp": "c",
+        "imgcodecs.hpp": "c"
     }
 }
