@@ -1,5 +1,7 @@
 #include "Util/imagesource.h"
 #include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <sys/stat.h>
 
 struct SetRand {
     SetRand(int seed) { srand(seed); }
@@ -135,4 +137,94 @@ void ImageSource_StereoSamples(pImageC_t imageShifted, pImageC_t imageSource)
     memcpy(imageSource->elements, imageSource_.elements, copySize);
     ispc::Image_Delete(imageShifted_);
     ispc::Image_Delete(imageSource_);
+}
+
+struct Transpose {
+    cv::Mat3b& src;
+
+    Transpose(cv::Mat3b& src_) : src(src_) {}
+
+    void operator ()(cv::Vec3b& pixel, const int* loc) const
+    {
+        pixel = src(loc[1], loc[0]);
+    }
+};
+
+static int MakeResultDirectory(const char* dir)
+{
+    int err = EXIT_SUCCESS;
+    struct stat s;
+    do {
+        if (EXIT_SUCCESS != stat(dir, &s))
+        {
+            err = errno;
+            if (err == ENOENT)
+            {
+                if (EXIT_SUCCESS != (err = mkdir(dir, 0xffff)))
+                {
+                    err = errno;
+                }
+            }
+        }
+        if (0 == S_ISDIR(s.st_mode))
+        {
+            err = EINVAL;
+            break;
+        }
+    } while (0);
+    return err;
+}
+
+int ImageSourrce_StitchSamples(const char* filePath, const char* saveDir, int nDiv, float overlappingRatio)
+{
+    int err = EXIT_SUCCESS;
+    do {
+        cv::Mat3b srcImage = cv::imread(filePath);
+        if (srcImage.cols == 0 || srcImage.rows == 0)
+        {
+            err = ENOENT;
+            break;
+        }
+        cv::Mat3b srcImageWork;
+        if (srcImage.cols > srcImage.rows)
+        {
+            srcImageWork = srcImage.clone();
+        }
+        else
+        {
+            srcImageWork = cv::Mat3b(srcImage.cols, srcImage.rows);
+            srcImageWork.forEach(Transpose(srcImage));
+        }
+        if (EXIT_SUCCESS != (err = MakeResultDirectory(saveDir)))
+        {
+            break;
+        }
+        int rows = srcImageWork.rows;
+
+        int iImages = 0; // The first image
+        std::vector<cv::Mat3b> images;
+        int rowsEach = (int)((1.0f + 2.0f * overlappingRatio) * (float)rows / (float)nDiv);
+        int rowsOffsetBegin = (rowsEach - rows / nDiv)/2;
+        int rowsOffsetEnd = rowsEach - rows / nDiv - rowsOffsetBegin;
+        {
+            cv::Mat3b srcImage(rowsEach, srcImageWork.cols);
+            size_t copyBytes = (rowsEach - rowsOffsetBegin) * srcImageWork.cols * sizeof(cv::Vec3b);
+            memcpy(&srcImage(rowsOffsetBegin, 0), srcImageWork.data, copyBytes);
+            images.emplace_back(srcImage);
+        }
+        for (iImages = 1; iImages < (nDiv - 1); iImages++)
+        {
+            int iRowSrcBegin = (int)((iImages - overlappingRatio) * (float)rows / (float)nDiv);
+            cv::Mat3b srcImage(rowsEach, srcImageWork.cols, &srcImageWork(iRowSrcBegin, 0));
+            images.emplace_back(srcImage.clone());
+        }
+        // i == nDiv - 1 : The last image
+        {
+            int iRowSrcBegin = (int)((iImages - overlappingRatio) * (float)rows / (float)nDiv);
+            cv::Mat3b srcImage(rowsEach, srcImageWork.cols);
+            size_t copyBytes = (srcImageWork.rows - iRowSrcBegin) * srcImageWork.cols * sizeof(cv::Vec3b);
+            memcpy(srcImage.data, &srcImageWork(iRowSrcBegin, 0), copyBytes);
+        }
+    } while (0);
+    return err;
 }

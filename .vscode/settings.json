@@ -62,6 +62,7 @@
         "assert.h": "c",
         "core.hpp": "c",
         "imgproc.hpp": "c",
-        "imgcodecs.hpp": "c"
+        "imgcodecs.hpp": "c",
+        "stdlib.h": "c"
     }
 }

@@ -39,4 +39,16 @@ void ImageSource_MonotalSample(pImageC_t image);
  */
 void ImageSource_StereoSamples(ispc::Image& imageShifted, ispc::Image& imageSource);
 void ImageSource_StereoSamples(pImageC_t imageShifted, pImageC_t imageSource);
+
+/**
+ * @brief Divide a image with overlapping region
+ * 
+ * @param filePath [in] source image file path
+ * @param saveDir [in] save directory of resulted images
+ * @param nDiv [in] number of resulted images
+ * @param overlappingRatio [in] overlapping ratio of each adjacent image pair. 1.0 fully overlap (impossible)
+ *  0.1: 10 % overlap
+ * @return EINVAL: invalid overlapping ratio or nDiv, ENOENT: file or directory not exist, EPERM: file permission
+ */
+int ImageSourrce_StitchSamples(const char* filePath, const char* saveDir, int nDiv, float overlappingRatio);
 #endif /* IMAGESOURCE_H_ */

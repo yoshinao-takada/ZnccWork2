@@ -11,8 +11,8 @@ extern "C" {
 #define DEFAULT_SCALE { 1, 1 }
 #define DEFAULT_SUMRECT { -10, -10, 21, 21 }
 typedef struct {
-    RectC_t searchRect;
-    RectC_t sumRect;
+    RectC_t searchRect; // is applied to scaled images.
+    RectC_t sumRect; // is applied to scaled images.
     Rational scale; // image pre-scaling
 } AppOpt_t, *pAppOpt_t;
 typedef const AppOpt_t *pcAppOpt_t;

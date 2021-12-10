@@ -16,8 +16,8 @@ DEBUG_LIB = $(DEBUG_TARGET_LIB) $(OPENCV_LIB) $(ISPC_LIB) -lpthread -lm -lstdc++
 RELEASE_LIB = $(RELEASE_TARGET_LIB) $(OPENCV_LIB) $(ISPC_LIB) -lpthread -lm -lstdc++
 DEBUG_OBJECT_DIR = $(DEBUG_TARGET_DIR)/o
 RELEASE_OBJECT_DIR = $(RELEASE_TARGET_DIR)/o
-DEBUG_OBJECTS = $(DEBUG_OBJECT_DIR)/App0Main.o $(DEBUG_OBJECT_DIR)/AppOpt.o
-RELEASE_OBJECTS = $(RELEASE_OBJECT_DIR)/App0Main.o $(RELEASE_OBJECT_DIR)/AppOpt.o
+DEBUG_OBJECTS = $(DEBUG_OBJECT_DIR)/App0Main.o $(DEBUG_OBJECT_DIR)/AppOpt.o $(DEBUG_OBJECT_DIR)/AppDataSet.o
+RELEASE_OBJECTS = $(RELEASE_OBJECT_DIR)/App0Main.o $(RELEASE_OBJECT_DIR)/AppOpt.o $(RELEASE_OBJECT_DIR)/AppDataSet.o
 
 # -------------------- debug -----------------------------
 .PHONY	:	debug
@@ -30,6 +30,9 @@ $(DEBUG_OBJECT_DIR)/App0Main.o	:	App0Main.cpp
 
 $(DEBUG_OBJECT_DIR)/AppOpt.o	:	AppOpt.c AppOpt.h
 	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
+
+$(DEBUG_OBJECT_DIR)/AppDataSet.o	:	AppDataSet.cpp AppDataSet.h
+	$(CC) $(DEBUG_CXX_FLAGS) -o $@ $<
 
 .PHONY	:	clean_debug
 clean_debug	:
@@ -47,6 +50,9 @@ $(RELEASE_OBJECT_DIR)/App0Main.o	:	App0Main.cpp
 
 $(RELEASE_OBJECT_DIR)/AppOpt.o	:	AppOpt.c AppOpt.h
 	$(CC) $(RELEASE_CC_FLAGS) -o $@ $<
+
+$(RELEASE_OBJECT_DIR)/AppDataSet.o	:	AppDataSet.cpp AppDataSet.h
+	$(CC) $(RELEASE_CXX_FLAGS) -o $@ $<
 
 .PHONY	:	clean_release
 clean_release	:

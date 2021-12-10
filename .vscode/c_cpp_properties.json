@@ -9,7 +9,7 @@
             "defines": [],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c17",
-            "cppStandard": "c++14",
+            "cppStandard": "c++17",
             "intelliSenseMode": "linux-clang-x64"
         },
         {
@@ -21,7 +21,7 @@
             "defines": [],
             "compilerPath": "/home/yoshinao/.local/intel/ispc-v1.16.1-linux/bin/ispc",
             "cStandard": "c17",
-            "cppStandard": "c++14",
+            "cppStandard": "c++17",
             "intelliSenseMode": "linux-clang-x64"
         }
     ],
