@@ -97,9 +97,9 @@ int CostMapGenC_FillCostMap(
 }
 
 typedef struct {
-    Size2iC_t packedSize;
-    int32_t *dispx, *dispy;
-    float* costs;
+    Size2iC_t packedSize; // ROI area or grid points
+    int32_t *dispx, *dispy; // best matched disparities found so far
+    float* costs; // maximum costs found so far
 } TempCostMap_t, *pTempCostMap_t;
 typedef const TempCostMap_t *pcTempCostMap_t;
 
@@ -274,6 +274,123 @@ int CostMapGen_FindMax(
         }
         if (err) { break; }
         if (EXIT_SUCCESS != (err = TempCostMap_ToDispmap(&currentMax, dispx, dispy, sizes)))
+        {
+            break;
+        }
+    } while (0);
+    ImageC_Delete(&xprod);
+    ImageC_Delete(&latestCosts);
+    TempCostMap_Delete(&currentMax);
+    return err;
+}
+
+static void SetLatestCostsGrid(
+    pcZnccHalfC_t base, pcZnccHalfC_t shifted,
+    pcImageC_t xprod, pImageC_t latestCosts, const Point2iC_t searchPoint, pcZnccMatchingSizesC_t sizes,
+    pcGridPointsC_t gridPoints
+) {
+    const int area1 = AREA_RECT(sizes->sumRect) - 1;
+    const float rcpArea1 = 1.0f / (float)area1;
+    const int stride = base->rcpstddev.size[0];
+    const int shiftOffset = searchPoint[0] + searchPoint[1] * stride;
+    const int grid0Offset = gridPoints->gridStep[0] + gridPoints->gridStep[1] * stride;
+    const float* baseRcpStdDevPtr = ImageC_BeginC(&base->rcpstddev) + grid0Offset;
+    const float* shiftedRcpStdDevPtr = ImageC_BeginC(&shifted->rcpstddev) + shiftOffset;
+    SumKernelC_t skXProd = MK_SUMKERNEL(xprod, sizes->sumRect);
+    skXProd.base += grid0Offset;
+    float* latestCostPtr = ImageC_Begin(latestCosts);
+    const int srcPtrInc = stride * gridPoints->gridStep[3];
+    const int columnStep = gridPoints->gridStep[2];
+    for (int iGridRow = 0; iGridRow != gridPoints->size[1]; iGridRow++)
+    {
+        int32_t srcColumn = 0;
+        for (int iGridColumn = 0; iGridColumn != gridPoints->size[0]; iGridColumn++)
+        {
+            latestCostPtr[iGridColumn] = rcpArea1 * SumKernelC_SATSum(&skXProd, srcColumn) * baseRcpStdDevPtr[srcColumn] * shiftedRcpStdDevPtr[srcColumn];
+            srcColumn += columnStep;
+        }
+        baseRcpStdDevPtr += srcPtrInc;
+        shiftedRcpStdDevPtr += srcPtrInc;
+        latestCostPtr += gridPoints->size[0];
+        skXProd.base += srcPtrInc;
+    }
+}
+
+static int TempCostMap_ToDispmapGrid(
+    pcTempCostMap_t tempCostMap, pImageC_t dispx, pImageC_t dispy, pcZnccMatchingSizesC_t sizes,
+    pcGridPointsC_t gridPoints
+) {
+    const int invalidDispXLimit = sizes->searchRect[0];
+    const RectC_t gridPackedRect = { 0, 0, gridPoints->size[0], gridPoints->size[1] };
+    int err = EXIT_SUCCESS;
+    do {
+        if ((EXIT_SUCCESS != (err = ImageC_New(dispx, gridPoints->size, gridPackedRect))) ||
+            (EXIT_SUCCESS != (err = ImageC_New(dispy, gridPoints->size, gridPackedRect))))
+        {
+            break;
+        }
+        float* dispXPtr = ImageC_Begin(dispx);
+        float* dispYPtr = ImageC_Begin(dispy);
+        const int stride = dispx->size[0];
+        int linearPackedIndex = 0;
+        for (int iRow = 0; iRow != tempCostMap->packedSize[1]; iRow++)
+        {
+            for (int iCol = 0; iCol != tempCostMap->packedSize[0]; iCol++)
+            {
+                if (tempCostMap->dispx[linearPackedIndex] >= invalidDispXLimit)
+                {
+                    dispXPtr[iCol] = (float)(tempCostMap->dispx[linearPackedIndex]);
+                    dispYPtr[iCol] = (float)(tempCostMap->dispy[linearPackedIndex]);
+                }
+                else
+                {
+                    dispXPtr[iCol] = dispYPtr[iCol] = NO_MATCH_FOUND;
+                }
+                linearPackedIndex++;
+            }
+            dispXPtr += stride;
+            dispYPtr += stride;
+        }
+
+    } while (0);
+    return err;
+}
+
+int CostMapGen_FindMaxGrid(
+    pcZnccHalfC_t base, pcZnccHalfC_t shifted, pcGridPointsC_t gridPoints,
+    pcZnccMatchingSizesC_t sizes, pImageC_t dispx, pImageC_t dispy
+) {
+    const RectC_t packedGridRect = { 0, 0, gridPoints->size[0], gridPoints->size[1] };
+    TempCostMap_t currentMax = NULL_TEMPCOSTMAP;
+    ImageC_t xprod = NULLIMAGE_C, latestCosts = NULLIMAGE_C;
+    int err = EXIT_SUCCESS;
+    do {
+
+        if ((EXIT_SUCCESS != (err = TempCostMap_New(&currentMax, gridPoints->size))) ||
+            (EXIT_SUCCESS != (err = ImageC_New(&latestCosts, gridPoints->size, packedGridRect))))
+        {
+            break;
+        }
+        TempCostMap_Set(&currentMax, COST_LOWER_LIMIT);
+        // scan over searchRect
+        for (int iSearchV = 0; iSearchV != sizes->searchRect[3]; iSearchV++)
+        {
+            for (int iSearchH = 0; iSearchH != sizes->searchRect[2]; iSearchH++)
+            {
+                // calculate cost function values at the search point
+                const Point2iC_t searchPoint = { iSearchH + sizes->searchRect[0], iSearchV + sizes->searchRect[1] };
+                if (EXIT_SUCCESS != (err = CostMapGen_CreateXProd(&base->lumdev, &shifted->lumdev, sizes->searchRect, searchPoint, &xprod)))
+                {
+                    break;
+                }
+                SetLatestCostsGrid(base, shifted, &xprod, &latestCosts, searchPoint, sizes, gridPoints);
+                // update the maximum costs
+                TempCostMap_Update(&currentMax, &latestCosts, searchPoint);
+            }
+            if (err) { break; }
+        }
+        if (err) { break; }
+        if (EXIT_SUCCESS != (err = TempCostMap_ToDispmapGrid(&currentMax, dispx, dispy, sizes, gridPoints)))
         {
             break;
         }

@@ -12,6 +12,10 @@ extern "C" {
 #include <assert.h>
 #endif
 
+#define NULLRECT_C { 0, 0, 0, 0 }
+#define NULLSIZE_C { 0, 0 }
+#define NULLPOINT_C NULLSIZE_C
+
 typedef int32_t Size2iC_t[2];
 typedef int32_t Point2iC_t[2];
 typedef int32_t Range1D_[2];

@@ -9,10 +9,10 @@ RELEASE_CC_FLAGS = -fPIE -fvectorize -c -O3 -DNDEBUG $(INCFLAGS) -std=c++17 -std
 DEBUG_TARGET = $(DEBUG_TARGET_DIR)/libZnccC.a
 RELEASE_TARGET = $(RELEASE_TARGET_DIR)/libZnccC.a
 DEBUG_OBJECTS = $(DEBUG_OBJECT_DIR)/ImageC.o $(DEBUG_OBJECT_DIR)/SpecialImagesC.o \
-	$(DEBUG_OBJECT_DIR)/ZnccHalfC.o $(DEBUG_OBJECT_DIR)/CostMapC.o \
+	$(DEBUG_OBJECT_DIR)/ZnccHalfC.o $(DEBUG_OBJECT_DIR)/CostMapC.o  $(DEBUG_OBJECT_DIR)/GridPointsC.o \
 	$(DEBUG_OBJECT_DIR)/CostMapGenC.o
 RELEASE_OBJECTS = $(RELEASE_OBJECT_DIR)/ImageC.o $(RELEASE_OBJECT_DIR)/SpecialImagesC.o \
-	$(RELEASE_OBJECT_DIR)/ZnccHalfC.o $(RELEASE_OBJECT_DIR)/CostMapC.o \
+	$(RELEASE_OBJECT_DIR)/ZnccHalfC.o $(RELEASE_OBJECT_DIR)/CostMapC.o $(RELEASE_OBJECT_DIR)/GridPointsC.o \
 	$(RELEASE_OBJECT_DIR)/CostMapGenC.o
 
 
@@ -40,6 +40,10 @@ $(DEBUG_OBJECT_DIR)/CostMapC.o	:	CostMapC.c CostMapC.h ImageC.h Basic2DTypesC.h
 	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
 
 $(DEBUG_OBJECT_DIR)/CostMapGenC.o	:	CostMapGenC.c CostMapGenC.h ImageC.h Basic2DTypesC.h
+	mkdir -p $(DEBUG_OBJECT_DIR)
+	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
+
+$(DEBUG_OBJECT_DIR)/GridPointsC.o	:	GridPointsC.c GridPointsC.h ImageC.h Basic2DTypesC.h
 	mkdir -p $(DEBUG_OBJECT_DIR)
 	$(CC) $(DEBUG_CC_FLAGS) -o $@ $<
 
@@ -73,6 +77,10 @@ $(RELEASE_OBJECT_DIR)/CostMapC.o	:	CostMapC.c CostMapC.h ImageC.h Basic2DTypesC.
 	$(CC) $(RELEASE_CC_FLAGS) -o $@ $<
 
 $(RELEASE_OBJECT_DIR)/CostMapGenC.o	:	CostMapGenC.c CostMapGenC.h ImageC.h Basic2DTypesC.h
+	mkdir -p $(RELEASE_OBJECT_DIR)
+	$(CC) $(RELEASE_CC_FLAGS) -o $@ $<
+
+$(RELEASE_OBJECT_DIR)/GridPointsC.o	:	GridPointsC.c GridPointsC.h ImageC.h Basic2DTypesC.h
 	mkdir -p $(RELEASE_OBJECT_DIR)
 	$(CC) $(RELEASE_CC_FLAGS) -o $@ $<
 

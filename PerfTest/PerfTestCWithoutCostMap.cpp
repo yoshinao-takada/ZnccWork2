@@ -103,6 +103,23 @@ static void CalcDispMap()
     assert(err == EXIT_SUCCESS);
 }
 
+static void CalcDispMapGrid()
+{
+    int err = EXIT_SUCCESS;
+    do {
+        RectC_t gridStep = { 8, 8, 16, 16 };
+        GridPointsC_t gridPoints;
+        GridPointsC_Fill(&gridPoints, gridStep, &base.mean);
+
+        if (EXIT_SUCCESS != (err = CostMapGen_FindMaxGrid(&base, &shifted, &gridPoints, &sizes, &dispmapH, &dispmapV)))
+        {
+            fprintf(stderr, "%s,%d,fail in CostMapGen_FindMaxGrid()\n", __FUNCTION__, __LINE__);
+            break;
+        }
+    } while (0);
+    assert(err == EXIT_SUCCESS);    
+}
+
 int PerfTestCWithoutCostMap()
 {
     int err = EXIT_SUCCESS;
@@ -128,6 +145,36 @@ int PerfTestCWithoutCostMap()
         Stopwatch_Save(stderr);
         ImageLog_SaveColorMapC(WORKDIR, "PerfTestDispH_C_WOCM", &dispmapH, RangeAndTypeConversion, -10.0, 4.0);
         ImageLog_SaveColorMapC(WORKDIR, "PerfTestDispV_C_WOCM", &dispmapV, RangeAndTypeConversion, -3.0, 3.0);
+    } while (0);
+    Cleanup();
+    return err;
+}
+
+int PerfTestCGrid()
+{
+    int err = EXIT_SUCCESS;
+    struct timespec tRef = { 0, 0 };
+    Stopwatch_Clear();
+    do {
+        fprintf(stderr, "%s start\n", __FUNCTION__);
+        // Step 1: Create stereo images
+        CreateStereoImages();
+
+        // Step 2: Calculate ZnccHalf
+        timespec_get(&tRef, TIME_UTC);
+        CalcZnccHalf();
+        Stopwatch_Record("ZnccHalf:Cgrid", 0, tRef);
+
+        // Step 3: Calculate Costmap
+        // This step was removed.
+
+        // Step 4: Calculate disparity map
+        timespec_get(&tRef, TIME_UTC);
+        CalcDispMapGrid();
+        Stopwatch_Record("Dispmap:Cgrid", 0, tRef);
+        Stopwatch_Save(stderr);
+        ImageLog_SaveColorMapC(WORKDIR, "PerfTestDispH_C_GRID", &dispmapH, RangeAndTypeConversion, -10.0, 4.0);
+        ImageLog_SaveColorMapC(WORKDIR, "PerfTestDispV_C_GRID", &dispmapV, RangeAndTypeConversion, -3.0, 3.0);
     } while (0);
     Cleanup();
     return err;
